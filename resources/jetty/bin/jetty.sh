@@ -556,7 +556,8 @@ case "$ACTION" in
 
   run|demo)
     echo "Running Jetty: "
-
+    echo "${RUN_CMD[@]}"
+    
     if running "$JETTY_PID"
     then
       echo Already Running $(cat "$JETTY_PID")!
