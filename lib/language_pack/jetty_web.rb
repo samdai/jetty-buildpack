@@ -1,15 +1,15 @@
 require "language_pack/java"
-#require "language_pack/database_helpers"
+require "language_pack/dynatrace_helpers"
 require "fileutils"
 
 # TODO logging
 module LanguagePack
   class JettyWeb < Java
     include LanguagePack::PackageFetcher
-    #include LanguagePack::DatabaseHelpers
+    include LanguagePack::DynatraceHelpers
 
-    JETTY_VERSION = "9.0.3.v20130506".freeze
-    JETTY_DOWNLOAD = "http://repo2.maven.org/maven2/org/eclipse/jetty/jetty-distribution/#{JETTY_VERSION}/"
+    JETTY_VERSION = "9.2.5.v20141112".freeze
+    JETTY_DOWNLOAD = "http://repo2.maven.org/maven2/org/eclipse/jetty/jetty-distribution/#{JETTY_VERSION}"
     JETTY_PACKAGE =  "jetty-distribution-#{JETTY_VERSION}.tar.gz".freeze
     WEBAPP_DIR = "webapps/ROOT/".freeze
 
@@ -26,10 +26,9 @@ module LanguagePack
         install_java
         install_jetty
         remove_jetty_files
-        #tweak_jetty_port
         copy_webapp_to_jetty
         move_jetty_to_root
-        #install_database_drivers
+        install_dynatrace_agent
         copy_resources
         setup_profiled
       end
@@ -82,17 +81,12 @@ module LanguagePack
     end
 
     def java_opts
-      #opts = super.merge({ "-Djetty.port=" => "$PORT" })
-      opts = super.merge({ "-Djetty.home=" => ".", "-Djetty.port=" => "$PORT" })
+      opts = super.merge({ "-Djetty.home=" => ".", "-Djetty.port=" => "$VCAP_APP_PORT" })
+      opts.merge!(get_dynatrace_javaopts)
       opts.delete("-Djava.io.tmpdir=")
       opts.delete("-XX:OnOutOfMemoryError=")
       opts
     end
-
-    #def tweak_jetty_port
-    #  port=ENV['PORT']
-    #  run_with_err_output("perl -pi -e 's/jetty.port=8080/jetty.port=$port/' #{jetty_dir}/start.ini")
-    #end
 
     def default_process_types
       {

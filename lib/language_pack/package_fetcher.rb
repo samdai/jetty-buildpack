@@ -5,14 +5,20 @@ require "base64"
 module LanguagePack
   module PackageFetcher
 
-    VENDOR_URL = "https://s3.amazonaws.com/heroku-jvm-langpack-java"
+    VENDOR_URL = "https://download.run.pivotal.io/openjdk-jdk/lucid/x86_64"
     BLOBSTORE_CONFIG = File.join(File.dirname(__FILE__), "../../config/blobstore.yml")
     PACKAGES_CONFIG = File.join(File.dirname(__FILE__), "../../config/packages.yml")
+    BUILDPACK_OFFLINE_DIR = File.join(File.dirname(__FILE__), "../../dependencies").freeze
 
     attr_writer :buildpack_cache_dir
+    attr_writer :buildpack_offline_dir
 
     def buildpack_cache_dir
       @buildpack_cache_dir || "/var/vcap/packages/buildpack_cache"
+    end
+
+    def buildpack_offline_dir
+      @buildpack_offline_dir || BUILDPACK_OFFLINE_DIR
     end
 
     def fetch_jdk_package(version)
@@ -20,12 +26,14 @@ module LanguagePack
 
       raise "Unsupported Java version: #{version}" unless jdk_package
 
+      fetch_from_buildpack_offline(jdk_package["full"], VENDOR_URL) ||
       fetch_from_buildpack_cache(jdk_package["jre"]) ||
       fetch_from_blobstore(jdk_package["jre"]) ||
       fetch_from_curl(jdk_package["full"], VENDOR_URL)
     end
 
     def fetch_package(filename, url=VENDOR_URL)
+      fetch_from_buildpack_offline(filename, url) ||
       fetch_from_buildpack_cache(filename) ||
       fetch_from_blobstore(filename) ||
       fetch_from_curl(filename, url)
@@ -40,6 +48,14 @@ module LanguagePack
     end
 
     private
+
+    def fetch_from_buildpack_offline(filename, url)
+      file_path = File.join(buildpack_offline_dir, "#{url}/#{filename}".gsub(/[:\/]/, '_'))
+      return unless File.exist?(file_path)
+      puts "Copying #{filename} from the buildpack offline ..."
+      FileUtils.cp(file_path, "./#{filename}")
+      File.expand_path(File.join(".", filename))
+    end
 
     def fetch_from_buildpack_cache(filename)
       file_path = File.join(buildpack_cache_dir, filename)

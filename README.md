@@ -10,7 +10,7 @@ NOTE:
 
 > This buildpack should work with the Cloudfoundry.com v2 configuration once it is live.
 
-Jetty Version: 9.0.3.v20130506
+Jetty Version: 9.2.5.v20141112
 
 Description
 ----------------
@@ -19,7 +19,7 @@ This buildpack is quite simple to use.
 
 If you have modifications to make to the Jetty server that will be running, like perhaps configuring additional
 static contexts, setting up a proxy servlet, adding items to the jetty.home/lib/ext directory, you can either adapt
-the ruby scripting or place them under the appropriate location in the /resources directory of this buildpack and they 
+the ruby scripting or place them under the appropriate location in the /resources directory of this buildpack and they
 will be copied into the correct location.
 
 The new CloudFoundry buildpacks seem to be very simple to use and straightforward to setup and customize.  However
@@ -28,7 +28,7 @@ root fork for customized jetty buildpack, or just a simple example of how to do 
 
 Feel free to submit feedback via normal github channels and I'll accept pull requests on this should they come.  
 
-For the time being I'll leave this buildpack under my personal github account and should there be interest expressed I am 
+For the time being I'll leave this buildpack under my personal github account and should there be interest expressed I am
 more then happy to push it over to https://github.com/jetty-project down the road for proper contributions, etc.
 
 TODO

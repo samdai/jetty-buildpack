@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+language='jetty'
+
+dependencies=(
+  'https://download.run.pivotal.io/openjdk-jdk/lucid/x86_64/openjdk-1.7.0_71.tar.gz'
+  'https://download.run.pivotal.io/openjdk-jdk/lucid/x86_64/openjdk-1.8.0_20.tar.gz'
+  'http://repo2.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.2.5.v20141112/jetty-distribution-9.2.5.v20141112.tar.gz'
+  'http://download.test.cf.hybris.com/dynatrace/libdtagent-6.0.0.so'
+)
+
+excluded_files=(
+  '.git/'
+  '.gitignore'
+  '.gitmodules'
+  '.rspec'
+  '.travis.yml'
+  'spec/'
+  'bin/package'
+  'buildpack-packager/'
+  'VERSION'
+  '*.zip'
+)
+
+BIN="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source $BIN/../buildpack-packager/lib/packager
+
+package_buildpack $@
