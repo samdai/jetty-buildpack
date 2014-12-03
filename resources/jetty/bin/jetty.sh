@@ -406,8 +406,8 @@ RUN_CMD=("$JAVA" ${RUN_ARGS[@]})
 # Comment these out after you're happy with what
 # the script is doing.
 #####################################################
-if (( DEBUG ))
-then
+#if (( DEBUG ))
+#then
   echo "START_INI      =  $START_INI"
   echo "JETTY_HOME     =  $JETTY_HOME"
   echo "JETTY_BASE     =  $JETTY_BASE"
@@ -418,7 +418,7 @@ then
   echo "JAVA_OPTIONS   =  ${JAVA_OPTIONS[*]}"
   echo "JAVA           =  $JAVA"
   echo "RUN_CMD        =  ${RUN_CMD}"
-fi
+#fi
 
 ##################################################
 # Do the action
