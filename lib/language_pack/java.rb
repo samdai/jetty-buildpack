@@ -70,8 +70,8 @@ module LanguagePack
 
     def java_opts
       {
-        "-Xmx" => "$MEMORY_LIMIT",
-        "-Xms" => "$MEMORY_LIMIT",
+        "-Xmx" => ENV['JAVA_XMX'] || "$MEMORY_LIMIT",
+        "-Xms" => ENV['JAVA_XMS'] || "$MEMORY_LIMIT",
         "-Djava.io.tmpdir=" => '\"$TMPDIR\"',
         "-XX:OnOutOfMemoryError=" => '\"echo oome killing pid: %p && kill -9 %p\"'
       }
