@@ -29,7 +29,7 @@ module LanguagePack
         copy_webapp_to_jetty
         move_jetty_to_root
         install_dynatrace_agent
-        copy_resources
+        #copy_resources
         setup_profiled
       end
     end
@@ -81,11 +81,23 @@ module LanguagePack
     end
 
     def java_opts
-      opts = super.merge({ "-Djetty.home=" => ".", "-Djetty.port=" => "$VCAP_APP_PORT" })
+      opts = super.merge({ })
       opts.merge!(get_dynatrace_javaopts)
       opts.delete("-Djava.io.tmpdir=")
       opts.delete("-XX:OnOutOfMemoryError=")
       opts
+    end
+
+    def bash_script
+      <<-BASH
+#{super}
+
+export JETTY_ARGS="jetty.port=$VCAP_APP_PORT"
+export JAVA_OPTIONS="$JAVA_OPTS"
+
+sed -ie '/^jetty.port/ s/^#*/#/' $HOME/start.ini
+sed -i 's/^DEBUG=0/DEBUG=1/' $HOME/bin/jetty.sh
+      BASH
     end
 
     def default_process_types

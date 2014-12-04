@@ -6,6 +6,13 @@ module LanguagePack
     include LanguagePack::PackageFetcher
 
     DEFAULT_JDK_VERSION = "1.8".freeze
+    MEMORY_LIMIT = ENV['MEMORY_LIMIT']
+    JVM_MEM_XMS = ENV['JVM_MEM_XMS'] || MEMORY_LIMIT
+    JVM_MEM_XMX = ENV['JVM_MEM_XMX'] || MEMORY_LIMIT
+    JVM_MEM_PERM = ENV['JVM_MEM_PERM']
+    JVM_MEM_PERMMAX = ENV['JVM_MEM_PERMMAX']
+    JVM_MEM_METASPACE = ENV['JVM_MEM_METASPACE']
+    JVM_MEM_METASPACEMAX = ENV['JVM_MEM_METASPACEMAX']
 
     def self.use?
       Dir.glob("**/*.jar").any? || Dir.glob("**/*.class").any?
@@ -69,12 +76,21 @@ module LanguagePack
     end
 
     def java_opts
-      {
-        "-Xmx" => "$MEMORY_LIMIT",
-        "-Xms" => "$MEMORY_LIMIT",
+      opts = {
+        "-Xms" => JVM_MEM_XMS,
+        "-Xmx" => JVM_MEM_XMX,
         "-Djava.io.tmpdir=" => '\"$TMPDIR\"',
         "-XX:OnOutOfMemoryError=" => '\"echo oome killing pid: %p && kill -9 %p\"'
       }
+
+      if java_version == "1.8"
+        opts.merge!({"-XX:MetaspaceSize=" => JVM_MEM_METASPACE}) if !JVM_MEM_METASPACE.nil?
+        opts.merge!({"-XX:MaxMetaspaceSize=" => JVM_MEM_METASPACEMAX}) if !JVM_MEM_METASPACEMAX.nil?
+      else
+        opts.merge!({"-XX:PermSize=" => JVM_MEM_PERM}) if !JVM_MEM_PERM.nil?
+        opts.merge!({"-XX:MaxPermSize=" => JVM_MEM_PERMMAX}) if !JVM_MEM_PERMMAX.nil?
+      end
+      opts
     end
 
     def release
@@ -110,8 +126,6 @@ export JAVA_HOME="$HOME/#{jdk_dir}"
 export PATH="$HOME/#{jdk_dir}/bin:$PATH"
 export JAVA_OPTS=${JAVA_OPTS:-"#{java_opts.map{ |k, v| "#{k}#{v}" }.join(' ')}"}
 export LANG="${LANG:-en_US.UTF-8}"
-export JETTY_ARGS="jetty.port=$VCAP_APP_PORT"
-
 if [ -n "$VCAP_DEBUG_MODE" ]; then
   if [ "$VCAP_DEBUG_MODE" = "run" ]; then
     export JAVA_OPTS="$JAVA_OPTS -Xdebug -Xrunjdwp:transport=dt_socket,address=$VCAP_DEBUG_PORT,server=y,suspend=n"
