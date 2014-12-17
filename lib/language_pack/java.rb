@@ -79,6 +79,9 @@ module LanguagePack
       opts = {
         "-Xms" => JVM_MEM_XMS,
         "-Xmx" => JVM_MEM_XMX,
+        "-XX:+UseConcMarkSweepGC" => "",
+        "-XX:+UseParNewGC" => "",
+        "-XX:+AggressiveOpts" => "",
         "-Djava.io.tmpdir=" => '\"$TMPDIR\"',
         "-XX:OnOutOfMemoryError=" => '\"echo oome killing pid: %p && kill -9 %p\"'
       }
@@ -89,6 +92,8 @@ module LanguagePack
       else
         opts.merge!({"-XX:PermSize=" => JVM_MEM_PERM}) if !JVM_MEM_PERM.nil?
         opts.merge!({"-XX:MaxPermSize=" => JVM_MEM_PERMMAX}) if !JVM_MEM_PERMMAX.nil?
+        opts.merge!({"-XX:+UseFastAccessorMethods" => ""})
+        opts.merge!({"-XX:+UseCompressedOops" => ""})
       end
       opts
     end

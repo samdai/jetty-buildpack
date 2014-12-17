@@ -12,6 +12,7 @@ module LanguagePack
     JETTY_DOWNLOAD = "http://repo2.maven.org/maven2/org/eclipse/jetty/jetty-distribution/#{JETTY_VERSION}"
     JETTY_PACKAGE =  "jetty-distribution-#{JETTY_VERSION}.tar.gz".freeze
     WEBAPP_DIR = "webapps/ROOT/".freeze
+    JETTY_DEBUG = ENV['JETTY_DEBUG'] || "false"
 
     def self.use?
       File.exists?("WEB-INF/web.xml") || File.exists?("webapps/ROOT/WEB-INF/web.xml")
@@ -29,7 +30,7 @@ module LanguagePack
         copy_webapp_to_jetty
         move_jetty_to_root
         install_dynatrace_agent
-        #copy_resources
+        copy_resources
         setup_profiled
       end
     end
@@ -78,6 +79,13 @@ module LanguagePack
     def copy_resources
       # copy jetty configuration updates into place
       run_with_err_output("cp -r #{File.expand_path('../../../resources/jetty', __FILE__)}/* #{build_path}")
+
+      if JETTY_DEBUG == "true"
+        File.open("#{build_path}/resources/jetty-logging.properties", "a") { |file|
+          file.puts("org.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.StrErrLog")
+          file.puts("org.eclipse.jetty.LEVEL=DEBUG")
+        }
+      end
     end
 
     def java_opts
@@ -95,8 +103,15 @@ module LanguagePack
 export JETTY_ARGS="jetty.port=$VCAP_APP_PORT"
 export JAVA_OPTIONS="$JAVA_OPTS"
 
+sed -ie '/^--module=home-base-warning/ s/^#*/#/' $HOME/start.ini
+sed -ie '/^--module=websocket/ s/^#*/#/' $HOME/start.ini
+sed -ie '/^--module=jsp/ s/^#*/#/' $HOME/start.ini
+sed -ie '/^jsp-impl=apache/ s/^#*/#/' $HOME/start.ini
+sed -ie '/^--module=jstl/ s/^#*/#/' $HOME/start.ini
 sed -ie '/^jetty.port/ s/^#*/#/' $HOME/start.ini
+
 sed -i 's/^DEBUG=0/DEBUG=1/' $HOME/bin/jetty.sh
+
       BASH
     end
 
