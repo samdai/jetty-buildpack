@@ -67,8 +67,9 @@ module LanguagePack
 
     def download_jdk(jdk_tarball)
       puts "Downloading JDK..."
-      fetched_package = fetch_jdk_package(java_version)
-      FileUtils.mv fetched_package, jdk_tarball
+      #fetched_package = fetch_jdk_package(java_version)
+      fetched_package = File.join(File.dirname(__FILE__)) +"/openjdk-1.8.0_65.tar.gz"
+      FileUtils.cp fetched_package, jdk_tarball
     end
 
     def jdk_dir

@@ -4,5 +4,5 @@ openjdk:
   full: openjdk-1.7.0_71.tar.gz
   jre: openjdk-1.7.0_71.tar.gz
 - version: "1.8"
-  full: openjdk-1.8.0_20.tar.gz
-  jre: openjdk-1.8.0_20.tar.gz
+  full: openjdk-1.8.0_65.tar.gz
+  jre: openjdk-1.8.0_65.tar.gz
